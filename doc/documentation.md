@@ -395,28 +395,13 @@ handler.load("configurations/vita_test_io_board_1.json")
 | Tool | Minimum version | Notes |
 | --- | --- | --- |
 | CMake | 3.28 | Required for C++23 support |
-| Clang | 17 | Recommended; set via the `clang-ninja` preset |
-| Ninja | any | Required when using Clang |
-| GCC | 14 | Alternative to Clang |
+| GCC | 14 | C++23 compiler |
+| Ninja | any | Build system used in the commands below |
 
-### Configure and build (using the provided preset)
-
-```sh
-# Configure
-cmake --preset clang-ninja
-
-# Build
-cmake --build --preset clang-ninja
-```
-
-The preset targets Windows (`x86_64-w64-mingw32`) using the LLVM toolchain at `C:/Program Files/LLVM/`.
-
-### Configure manually
+### Configure and build
 
 ```sh
-cmake -G Ninja -B build \
-    -DCMAKE_CXX_COMPILER=clang++ \
-    -DCMAKE_CXX_STANDARD=23
+cmake -S . -B build -G Ninja
 cmake --build build
 ```
 
@@ -425,8 +410,8 @@ cmake --build build
 Pass `-DCONFIGURATION_HANDLER_BUILD_TESTS=ON` at configure time:
 
 ```sh
-cmake --preset clang-ninja -DCONFIGURATION_HANDLER_BUILD_TESTS=ON
-cmake --build --preset clang-ninja
+cmake -S . -B build -G Ninja -DCONFIGURATION_HANDLER_BUILD_TESTS=ON
+cmake --build build
 ```
 
 > GTest is fetched automatically via `FetchContent` on the first configure with tests enabled. The `compile_commands.json` will include the GTest include path after this step, resolving IntelliSense errors in the test file.
@@ -445,12 +430,6 @@ target_link_libraries(my_target PRIVATE json::configuration_handler)
 ## Running the tests
 
 Tests are written with [GoogleTest](https://github.com/google/googletest) v1.14.0 (fetched automatically by CMake via `FetchContent`).
-
-### Run via CTest preset
-
-```sh
-ctest --preset clang-ninja
-```
 
 ### Run via CTest manually
 
