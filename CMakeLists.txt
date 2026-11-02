@@ -6,7 +6,7 @@ include(FetchContent)
 FetchContent_Declare(
     decree
     GIT_REPOSITORY https://github.com/dominikmaurer/decree.git
-    GIT_TAG        608ae524ff57c1a54ddc88c1bfc9b5d37cda087b
+    GIT_TAG        decree_V1.0.0
 )
 FetchContent_MakeAvailable(decree)
 
