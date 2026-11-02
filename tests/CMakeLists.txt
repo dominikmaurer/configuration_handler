@@ -16,21 +16,21 @@ configure_file(
     COPYONLY
 )
 
-add_executable(condair_configuration_handler_test
-    condair_configuration_handler_test.cpp
+add_executable(json_configuration_handler_test
+    json_configuration_handler.cpp
 )
 
-target_compile_definitions(condair_configuration_handler_test
+target_compile_definitions(json_configuration_handler_test
     PRIVATE
         TEST_RESOURCES_DIR="${CMAKE_CURRENT_BINARY_DIR}/resources"
 )
 
-target_link_libraries(condair_configuration_handler_test
+target_link_libraries(json_configuration_handler_test
     PRIVATE
-        condair::configuration_handler
+        json::configuration_handler
         GTest::gtest_main
         Threads::Threads
 )
 
 include(GoogleTest)
-gtest_discover_tests(condair_configuration_handler_test)
+gtest_discover_tests(json_configuration_handler_test)

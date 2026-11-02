@@ -1,0 +1,26 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - development
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-2022
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCONFIGURATION_HANDLER_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build -C Release --output-on-failure

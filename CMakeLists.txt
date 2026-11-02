@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.28)
 project(configuration_handler VERSION 1.0.0 LANGUAGES CXX)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    decree
+    GIT_REPOSITORY https://github.com/dominikmaurer/decree.git
+    GIT_TAG        608ae524ff57c1a54ddc88c1bfc9b5d37cda087b
+)
+FetchContent_MakeAvailable(decree)
+
 add_library(configuration_handler INTERFACE)
 add_library(json::configuration_handler ALIAS configuration_handler)
 

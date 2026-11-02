@@ -473,3 +473,10 @@ ctest --test-dir build --output-on-failure
 | `RoundTripTest` | Load after update returns original content, multiple updates retain last value |
 | `CConfigurationFormatConceptTest` | Conforming formatter satisfies concept; a type without `ConfigurationType` and a non-enum error code are rejected |
 | `JsonFileTest` | Loading individual fields from a JSON fixture and round-tripping all of them |
+
+## GitHub Actions
+
+Pull requests targeting `develop` or `development` build the project and run the tests.
+To publish a release, push a tag matching `Configuration*_Handler_V<major>.<minor>.<patch>`
+to a commit on `main` (for example, `Configuration_Handler_V0.0.1`). The release workflow
+uses the version from the tag and attaches a ZIP source package to a GitHub Release.

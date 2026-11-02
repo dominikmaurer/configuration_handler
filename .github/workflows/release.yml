@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'Configuration*_Handler_V*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag and extract version
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "The tagged commit is not on main." >&2
+            exit 1
+          fi
+
+          tag="$GITHUB_REF_NAME"
+          if [[ "$tag" =~ ^Configuration.*_Handler_V([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            version="${BASH_REMATCH[1]}"
+          else
+            echo "Tag must end with _Handler_V<major>.<minor>.<patch>: $tag" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create source package
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          git archive \
+            --format=zip \
+            --prefix="configuration_handler-${VERSION}/" \
+            "$GITHUB_SHA" \
+            -o "configuration_handler-${VERSION}.zip"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "configuration_handler-${VERSION}.zip" \
+            --title "Configuration Handler ${VERSION}" \
+            --generate-notes
