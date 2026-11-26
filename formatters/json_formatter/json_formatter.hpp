@@ -2,6 +2,7 @@
 #define JSON_FORMATTER_HPP_
 
 #include <fstream>
+#include <iomanip>
 #include <string>
 #include <vector>
 

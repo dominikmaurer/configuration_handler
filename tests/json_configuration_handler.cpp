@@ -1,6 +1,7 @@
 #include "configuration_handler.hpp"
 #include "configuration_format_concept.hpp"
 #include "decree.hpp"
+#include "json_formatter.hpp"
 
 #include <gtest/gtest.h>
 #include <filesystem>
@@ -25,6 +26,10 @@ struct PlainTextFormatter {
         return ConfigurationType{ std::string{ std::istreambuf_iterator<char>{ stream }, std::istreambuf_iterator<char>{} } };
     }
 
+    Decree::ErrorResult<ConfigurationType, TestError> parseConfiguration(std::istream& stream) {
+        return ConfigurationType{ std::string{ std::istreambuf_iterator<char>{ stream }, std::istreambuf_iterator<char>{} } };
+    }
+
     Decree::ErrorResult<void, TestError> writeConfiguration(std::ofstream& stream, const ConfigurationType& config) {
         stream << config.content;
 
@@ -32,12 +37,16 @@ struct PlainTextFormatter {
     }
 };
 
-static_assert(CConfigurationFormat<PlainTextFormatter, TestError>);
+static_assert(CConfigurationFormatter<PlainTextFormatter, PlainTextFormatter>);
 
 struct FailingParseFormatter {
     using ConfigurationType = PlainTextFormatter::ConfigurationType;
 
     Decree::ErrorResult<ConfigurationType, TestError> parseConfiguration(std::ifstream&) {
+        return Decree::makeError(TestError::eParseError, "forced parse error");
+    }
+
+    Decree::ErrorResult<ConfigurationType, TestError> parseConfiguration(std::istream&) {
         return Decree::makeError(TestError::eParseError, "forced parse error");
     }
 
@@ -55,6 +64,10 @@ struct FailingWriteFormatter {
         return ConfigurationType{ std::string{ std::istreambuf_iterator<char>{ stream }, std::istreambuf_iterator<char>{} } };
     }
 
+    Decree::ErrorResult<ConfigurationType, TestError> parseConfiguration(std::istream& stream) {
+        return ConfigurationType{ std::string{ std::istreambuf_iterator<char>{ stream }, std::istreambuf_iterator<char>{} } };
+    }
+
     Decree::ErrorResult<void, TestError> writeConfiguration(std::ofstream&, const ConfigurationType&) {
         return Decree::makeError(TestError::eWriteError, "forced write error");
     }
@@ -68,6 +81,21 @@ struct SimpleJsonFormatter {
     };
 
     Decree::ErrorResult<ConfigurationType, TestError> parseConfiguration(std::ifstream& stream) {
+        const std::string json{ std::istreambuf_iterator<char>{ stream }, std::istreambuf_iterator<char>{} };
+
+        ConfigurationType config;
+        config.name = extractStringValue(json, "name");
+        config.version = extractStringValue(json, "version");
+        config.outputPath = extractStringValue(json, "outputPath");
+
+        if(config.name.empty()) {
+            return Decree::makeError(TestError::eParseError, "missing 'name' field");
+        }
+
+        return config;
+    }
+
+    Decree::ErrorResult<ConfigurationType, TestError> parseConfiguration(std::istream& stream) {
         const std::string json{ std::istreambuf_iterator<char>{ stream }, std::istreambuf_iterator<char>{} };
 
         ConfigurationType config;
@@ -118,7 +146,7 @@ private:
     }
 };
 
-static_assert(CConfigurationFormat<SimpleJsonFormatter, TestError>);
+static_assert(CConfigurationFormatter<SimpleJsonFormatter, SimpleJsonFormatter>);
 
 class LoadTest : public ::testing::Test {
 protected:
@@ -280,7 +308,7 @@ TEST_F(RoundTripTest, MultipleUpdatesRetainLastContent) {
 }
 
 TEST(CConfigurationFormatConceptTest, PlainTextFormatterSatisfiesConcept) {
-    static_assert(CConfigurationFormat<PlainTextFormatter, TestError>);
+    static_assert(CConfigurationFormatter<PlainTextFormatter, PlainTextFormatter>);
     SUCCEED();
 }
 
@@ -289,13 +317,18 @@ TEST(CConfigurationFormatConceptTest, TypeWithoutConfigurationTypeMemberDoesNotS
         Decree::ErrorResult<int, TestError> parseConfiguration(std::ifstream&);
         Decree::ErrorResult<void, TestError> writeConfiguration(std::ofstream&, const int&);
     };
-    static_assert(!CConfigurationFormat<NoConfigType, TestError>);
+    static_assert(!CConfigurationFormatter<NoConfigType, PlainTextFormatter>);
     SUCCEED();
 }
 
 TEST(CConfigurationFormatConceptTest, TypeWithNonEnumErrorCodeDoesNotSatisfy) {
-    struct BadErrorCode {};
-    static_assert(!CConfigurationFormat<PlainTextFormatter, BadErrorCode>);
+    struct WrongResultFormatter {
+        using ConfigurationType = PlainTextFormatter::ConfigurationType;
+        Decree::ErrorResult<ConfigurationType, int> parseConfiguration(std::ifstream&);
+        Decree::ErrorResult<ConfigurationType, int> parseConfiguration(std::istream&);
+        Decree::ErrorResult<void, int> writeConfiguration(std::ofstream&, const ConfigurationType&);
+    };
+    static_assert(!CConfigurationFormatter<WrongResultFormatter, PlainTextFormatter>);
     SUCCEED();
 }
 

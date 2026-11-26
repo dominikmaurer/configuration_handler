@@ -18,7 +18,10 @@ target_compile_features(configuration_handler INTERFACE cxx_std_23)
 
 target_include_directories(configuration_handler INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/formatters>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/formatters/json_formatter>
     $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/json_formatter>
 )
 
 target_link_libraries(configuration_handler
