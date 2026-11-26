@@ -54,7 +54,7 @@ auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::update(c
 
     std::ofstream configurationFile{ configurationPath };
     if (!configurationFile.is_open()) {
-        return Decree::makeError(EErrorCodes::eOpenConfigurationFailed, "Failed to open config file: " + configurationPath.string());
+        return Decree::makeError(EError::eOpenConfigurationFailed, "Failed to open config file: " + configurationPath.string());
     }
 
     if(const auto formatterResult = m_formatter.writeConfiguration(configurationFile, configuration); !formatterResult.has_value()) {

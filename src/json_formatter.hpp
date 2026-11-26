@@ -19,8 +19,8 @@ struct JsonFormatter {
     template<typename T>
     using ReturnType = Decree::ErrorResult<T, EError>;
 
-    [[nodiscard]] auto parseConfiguration(std::ifstream& streamHandle) -> ReturnType<ConfigurationFormat::ConfigurationType>;
-    [[nodiscard]] auto parseConfiguration(std::istream& streamHandle) -> ReturnType<ConfigurationFormat::ConfigurationType>;
+    [[nodiscard]] auto parseConfiguration(std::ifstream& streamHandle) -> ReturnType<typename ConfigurationFormat::ConfigurationType>;
+    [[nodiscard]] auto parseConfiguration(std::istream& streamHandle) -> ReturnType<typename ConfigurationFormat::ConfigurationType>;
     [[nodiscard]] auto writeConfiguration(std::ofstream& out, const typename ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void>;
 };
 
