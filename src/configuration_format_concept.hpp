@@ -12,8 +12,8 @@ concept HasConfigurationType = requires {
     typename T::ConfigurationType;
 };
 
-template<typename Formatter, HasConfigurationType Format>
-concept CConfigurationFormatter = requires (
+template<typename Formatter, typename Format>
+concept CConfigurationFormatter = HasConfigurationType<Format> && requires (
     Formatter formatter,
     std::ifstream& ifstream,
     std::istream& istream,

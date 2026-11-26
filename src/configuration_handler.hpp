@@ -21,8 +21,8 @@ public:
 
     ConfigurationHandler() = default;
 
-    [[nodiscard]] auto load(const std::filesystem::path& configurationPath) -> ReturnType<typename ConfigurationFormatter::ConfigurationType>;
-    [[nodiscard]] auto update(const std::filesystem::path& configurationPath, const typename ConfigurationFormatter::ConfigurationType& configuration) -> ReturnType<void>;
+    [[nodiscard]] auto load(const std::filesystem::path& configurationPath) -> ReturnType<typename ConfigurationFormat::ConfigurationType>;
+    [[nodiscard]] auto update(const std::filesystem::path& configurationPath, const typename ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void>;
     [[nodiscard]] auto getFormatter() const -> ConfigurationFormatter&;
 
 private:
@@ -31,7 +31,7 @@ private:
 
 template<typename ConfigurationFormatter, typename ConfigurationFormat>
 requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat>
-auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::load(const std::filesystem::path& configurationPath) -> ReturnType<typename ConfigurationFormatter::ConfigurationType> {
+auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::load(const std::filesystem::path& configurationPath) -> ReturnType<typename ConfigurationFormat::ConfigurationType> {
     std::ifstream configurationFile{ configurationPath };
     if (!configurationFile.is_open()) {
         return Decree::makeError(EError::eOpenConfigurationFailed, "Failed to open config file: " + configurationPath.string());
@@ -47,7 +47,7 @@ auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::load(con
 
 template<typename ConfigurationFormatter, typename ConfigurationFormat>
 requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat>
-auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::update(const std::filesystem::path& configurationPath, const typename ConfigurationFormatter::ConfigurationType& configuration) -> ReturnType<void> {
+auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::update(const std::filesystem::path& configurationPath, const typename ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void> {
     if (!configurationPath.parent_path().empty()) {
         std::filesystem::create_directories(configurationPath.parent_path());
     }
