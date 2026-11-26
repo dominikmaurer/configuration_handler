@@ -11,6 +11,14 @@
 
 template<HasConfigurationType ConfigurationFormat>
 struct JsonFormatter {
+    enum class EError {
+        eParseFailed,
+        eWriteFailed
+    };
+
+    template<typename T>
+    using ReturnType = Decree::ErrorResult<T, EError>;
+
     [[nodiscard]] auto parseConfiguration(std::ifstream& streamHandle) -> ReturnType<ConfigurationFormat::ConfigurationType>;
     [[nodiscard]] auto parseConfiguration(std::istream& streamHandle) -> ReturnType<ConfigurationFormat::ConfigurationType>;
     [[nodiscard]] auto writeConfiguration(std::ofstream& out, const ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void>;

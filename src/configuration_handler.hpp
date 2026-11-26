@@ -11,8 +11,13 @@ template<typename ConfigurationFormatter, typename ConfigurationFormat, typename
 requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>
 class ConfigurationHandler {
 public:
+    enum class EError {
+        eOpenConfigurationFailed,
+        eFormatterParseFailed,
+        eFormatterWriteFailed
+    };
     template<typename T>
-    using ReturnType = Decree::ErrorResult<T, EErrorCodes>;
+    using ReturnType = Decree::ErrorResult<T, EError>;
 
     ConfigurationHandler() = default;
 
@@ -29,10 +34,15 @@ requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat, EE
 auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>::load(const std::filesystem::path& configurationPath) -> ReturnType<typename ConfigurationFormatter::ConfigurationType> {
     std::ifstream configurationFile{ configurationPath };
     if (!configurationFile.is_open()) {
-        return Decree::makeError(EErrorCodes::eOpenConfigurationFailed, "Failed to open config file: " + configurationPath.string());
+        return Decree::makeError(EError::eOpenConfigurationFailed, "Failed to open config file: " + configurationPath.string());
     }
 
-    return m_formatter.parseConfiguration(configurationFile);
+    const auto formatterResult = m_formatter.parseConfiguration(configurationFile);
+    if(!formatterResult.has_value()) {
+        return Decree::makeError(EError::eFormatterParseFailed, formatterResult.error().getErrorMessage());
+    }
+
+    return formatterResult.value();
 }
 
 template<typename ConfigurationFormatter, typename ConfigurationFormat, typename EErrorCodes>
@@ -47,7 +57,11 @@ auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat, EErrorCod
         return Decree::makeError(EErrorCodes::eOpenConfigurationFailed, "Failed to open config file: " + configurationPath.string());
     }
 
-    return m_formatter.writeConfiguration(configurationFile, configuration);
+    if(const auto formatterResult = m_formatter.writeConfiguration(configurationFile, configuration); !formatterResult.has_value()) {
+        return Decree::makeError(EError::eFormatterWriteFailed, formatterResult.error().getErrorMessage());
+    }
+
+    return {};
 }
 
 template<typename ConfigurationFormatter, typename ConfigurationFormat, typename EErrorCodes>
