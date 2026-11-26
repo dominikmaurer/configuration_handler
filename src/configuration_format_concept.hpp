@@ -12,7 +12,7 @@ concept HasConfigurationType = requires {
     typename T::ConfigurationType;
 };
 
-template<typename Formatter, HasConfigurationType Format, typename EErrorCodes>
+template<typename Formatter, HasConfigurationType Format>
 concept CConfigurationFormatter = requires (
     Formatter formatter,
     std::ifstream& ifstream,
