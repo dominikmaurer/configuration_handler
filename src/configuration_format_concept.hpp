@@ -12,11 +12,22 @@ concept CConfigurationErrorCode = std::is_enum_v<EErrorCodes> && requires {
     { EErrorCodes::eOpenConfigurationFailed };
 };
 
-template<typename Parser, typename EErrorCodes>
-concept CConfigurationFormat = CConfigurationErrorCode<EErrorCodes> && requires (Parser parser, std::ifstream& stream, std::ofstream& writeStream, const typename Parser::ConfigurationType& configuration) {
-    typename Parser::ConfigurationType;
-    { parser.parseConfiguration(stream) } -> std::same_as<Decree::ErrorResult<typename Parser::ConfigurationType, EErrorCodes>>;
-    { parser.writeConfiguration(writeStream, configuration) } -> std::same_as<Decree::ErrorResult<void, EErrorCodes>>;
+template<typename T>
+concept HasConfigurationType = requires {
+    typename T::ConfigurationType;
+};
+
+template<typename Formatter, HasConfigurationType Format, typename EErrorCodes>
+concept CConfigurationFormatter = CConfigurationErrorCode<EErrorCodes> && requires (
+    Formatter formatter,
+    std::ifstream& ifstream,
+    std::istream& istream,
+    std::ofstream& writeStream,
+    const typename Format::ConfigurationType& configuration
+) {
+    { formatter.parseConfiguration(ifstream) } -> std::same_as<Decree::ErrorResult<typename Format::ConfigurationType, EErrorCodes>>;
+    { formatter.parseConfiguration(istream) } -> std::same_as<Decree::ErrorResult<typename Format::ConfigurationType, EErrorCodes>>;
+    { formatter.writeConfiguration(writeStream, configuration) } -> std::same_as<Decree::ErrorResult<void, EErrorCodes>>;
 };
 
 #endif /* CONFIGURATION_FORMAT_CONCEPT_HPP_ */
