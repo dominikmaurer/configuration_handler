@@ -7,8 +7,8 @@
 #include "configuration_format_concept.hpp"
 #include "decree.hpp"
 
-template<typename ConfigurationFormatter, typename ConfigurationFormat, typename EErrorCodes>
-requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>
+template<typename ConfigurationFormatter, typename ConfigurationFormat>
+requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat>
 class ConfigurationHandler {
 public:
     enum class EError {
@@ -29,9 +29,9 @@ private:
     ConfigurationFormatter m_formatter{};
 };
 
-template<typename ConfigurationFormatter, typename ConfigurationFormat, typename EErrorCodes>
-requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>
-auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>::load(const std::filesystem::path& configurationPath) -> ReturnType<typename ConfigurationFormatter::ConfigurationType> {
+template<typename ConfigurationFormatter, typename ConfigurationFormat>
+requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat>
+auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::load(const std::filesystem::path& configurationPath) -> ReturnType<typename ConfigurationFormatter::ConfigurationType> {
     std::ifstream configurationFile{ configurationPath };
     if (!configurationFile.is_open()) {
         return Decree::makeError(EError::eOpenConfigurationFailed, "Failed to open config file: " + configurationPath.string());
@@ -45,9 +45,9 @@ auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat, EErrorCod
     return formatterResult.value();
 }
 
-template<typename ConfigurationFormatter, typename ConfigurationFormat, typename EErrorCodes>
-requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>
-auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>::update(const std::filesystem::path& configurationPath, const typename ConfigurationFormatter::ConfigurationType& configuration) -> ReturnType<void> {
+template<typename ConfigurationFormatter, typename ConfigurationFormat>
+requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat>
+auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::update(const std::filesystem::path& configurationPath, const typename ConfigurationFormatter::ConfigurationType& configuration) -> ReturnType<void> {
     if (!configurationPath.parent_path().empty()) {
         std::filesystem::create_directories(configurationPath.parent_path());
     }
@@ -64,9 +64,9 @@ auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat, EErrorCod
     return {};
 }
 
-template<typename ConfigurationFormatter, typename ConfigurationFormat, typename EErrorCodes>
-requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>
-auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat, EErrorCodes>::getFormatter() const -> ConfigurationFormatter& {
+template<typename ConfigurationFormatter, typename ConfigurationFormat>
+requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat>
+auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::getFormatter() const -> ConfigurationFormatter& {
     return m_formatter;
 }
 

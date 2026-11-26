@@ -21,29 +21,29 @@ struct JsonFormatter {
 
     [[nodiscard]] auto parseConfiguration(std::ifstream& streamHandle) -> ReturnType<ConfigurationFormat::ConfigurationType>;
     [[nodiscard]] auto parseConfiguration(std::istream& streamHandle) -> ReturnType<ConfigurationFormat::ConfigurationType>;
-    [[nodiscard]] auto writeConfiguration(std::ofstream& out, const ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void>;
-}
+    [[nodiscard]] auto writeConfiguration(std::ofstream& out, const typename ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void>;
+};
 
 template<HasConfigurationType ConfigurationFormat>
-auto JsonFormatter<ConfigurationFormat>::parseConfiguration(std::ifstream& streamHandle) -> ReturnType<ConfigurationFormat::ConfigurationType> {
+auto JsonFormatter<ConfigurationFormat>::parseConfiguration(std::ifstream& streamHandle) -> ReturnType<typename ConfigurationFormat::ConfigurationType> {
     return parseConfiguration(static_cast<std::istream&>(streamHandle));
 }
 
 template<HasConfigurationType ConfigurationFormat>
-auto JsonFormatter<ConfigurationFormat>::parseConfiguration(std::istream& streamHandle) -> ReturnType<ConfigurationFormat::ConfigurationType> {
+auto JsonFormatter<ConfigurationFormat>::parseConfiguration(std::istream& streamHandle) -> ReturnType<typename ConfigurationFormat::ConfigurationType> {
     nlohmann::json jsonFile;
 
     try {
         streamHandle >> jsonFile;
 
-        return jsonFile.get<ConfigurationFormat::ConfigurationType>();
+        return jsonFile.get<typename ConfigurationFormat::ConfigurationType>();
     } catch (const std::exception& exception) {
         return Decree::makeError(EError::eParseFailed, "Exception occurred during configuration parsing: " + std::string{ exception.what() });
     }
 }
 
 template<HasConfigurationType ConfigurationFormat>
-auto JsonFormatter<ConfigurationFormat>::writeConfiguration(std::ofstream& out, const ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void> {
+auto JsonFormatter<ConfigurationFormat>::writeConfiguration(std::ofstream& out, const typename ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void> {
     nlohmann::json j;
 
     try {
