@@ -23,7 +23,7 @@ public:
 
     [[nodiscard]] auto load(const std::filesystem::path& configurationPath) -> ReturnType<typename ConfigurationFormat::ConfigurationType>;
     [[nodiscard]] auto update(const std::filesystem::path& configurationPath, const typename ConfigurationFormat::ConfigurationType& configuration) -> ReturnType<void>;
-    [[nodiscard]] auto getFormatter() const -> ConfigurationFormatter&;
+    [[nodiscard]] auto getFormatter() -> ConfigurationFormatter&;
 
 private:
     ConfigurationFormatter m_formatter{};
@@ -66,7 +66,7 @@ auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::update(c
 
 template<typename ConfigurationFormatter, typename ConfigurationFormat>
 requires CConfigurationFormatter<ConfigurationFormatter, ConfigurationFormat>
-auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::getFormatter() const -> ConfigurationFormatter& {
+auto ConfigurationHandler<ConfigurationFormatter, ConfigurationFormat>::getFormatter() -> ConfigurationFormatter& {
     return m_formatter;
 }
 
